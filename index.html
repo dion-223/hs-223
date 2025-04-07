@@ -53,34 +53,8 @@
                 <!-- Schedule Content -->
                 <div class="w-[60%]">
                     <div class="bg-neutral-900 rounded-lg p-6 h-fit">
-                        <!-- Google Sheets Schedule Embed -->
-                        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                            <div class="rounded-xl overflow-hidden shadow-md border border-gray-700 mb-8">
-                                <iframe
-                                    src="https://docs.google.com/spreadsheets/d/e/2PACX-1vRHoE2LgwT8uX0ULaD9L_aBvS9RAQgEXQWDQaSFL2U9rfWiabIu3fJERHUF80OUC4vkzPAZnp7Laro5/pubhtml?widget=true&amp;headers=false"
-                                    width="100%"
-                                    height="350"
-                                    frameborder="0"
-                                    class="w-full"
-                                    loading="lazy"
-                                ></iframe>
-                            </div>
-                        </div>
-                        <div class="space-y-4" id="schedule-container">
-                            <!-- Schedule items will be dynamically inserted here from Google Sheets/scraper -->
-                            <!-- Example schedule item format:
-                            <div class="bg-neutral-950 rounded p-4 hover:bg-neutral-900 transition duration-300">
-                                <div class="grid grid-cols-12 gap-4 items-center">
-                                    <div class="col-span-2 text-gray-400">[TIME]</div>
-                                    <div class="col-span-3">[TEAM1]</div>
-                                    <div class="col-span-2 text-center text-red-600">vs</div>
-                                    <div class="col-span-3">[TEAM2]</div>
-                                    <div class="col-span-2">
-                                        <a href="./live.html" onclick="saveGame('[TEAM1]-[TEAM2]')" class="bg-red-600 text-white px-4 py-1 rounded hover:bg-red-700 inline-block text-center">Watch</a>
-                                    </div>
-                                </div>
-                            </div>
-                            -->
+                        <div id="schedule-container" class="space-y-4">
+                            <!-- Games will be injected here -->
                         </div>
                     </div>
                 </div>
@@ -89,14 +63,13 @@
                 <div class="w-[20%]"></div>
             </div>
         </div>
-    </main>
 
-    <!-- SEO Section -->
-    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div class="bg-neutral-900 rounded-lg p-6 text-sm text-gray-400">
-            <h2 class="text-lg font-semibold text-white mb-2">Watch Free NBA & NCAA Streams</h2>
-            <p>
-                At HoopyStreams, we bring you the best in free NBA and NCAA streaming. Whether you're here for the NBA Playoffs, regular-season games, March Madness, or any NCAA basketball action, you'll find reliable, high-quality streams to catch every moment of the action. We're dedicated to providing you with a seamless, high-quality NBA and NCAA streaming experience, all without the hassle of sign-ups or intrusive ads.
+        <!-- SEO Section -->
+        <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="bg-neutral-900 rounded-lg p-6 text-sm text-gray-400">
+                <h2 class="text-lg font-semibold text-white mb-2">Watch Free NBA & NCAA Streams</h2>
+                <p>
+                    At HoopyStreams, we bring you the best in free NBA and NCAA streaming. Whether you're here for the NBA Playoffs, regular-season games, March Madness, or any NCAA basketball action, you'll find reliable, high-quality streams to catch every moment of the action. We're dedicated to providing you with a seamless, high-quality NBA and NCAA streaming experience, all without the hassle of sign-ups or intrusive ads.
 
 What Makes HoopyStreams Stand Out?
 Wide Range of NBA & NCAA Content: While we specialize in NBA live streams, HoopyStreams also covers NCAA basketball, including the NCAA Tournament and March Madness. From regular season NBA games, to NBA Finals, and from college basketball showdowns to NCAA March Madness madness, you'll find it all.
@@ -115,30 +88,59 @@ Stay Connected with HoopyStreams
 Join the growing community of NBA and NCAA enthusiasts who rely on HoopyStreams for their live streaming needs. With fast load times, a clean interface, and carefully selected streaming links, HoopyStreams is your premier destination for free, high-quality NBA and NCAA basketball live streaming. Stay updated with the latest NBA and NCAA events, news, and enjoy hassle-free streaming—no sign-ups, no annoying ads, just basketball action.
 
 
-            </p>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="bg-neutral-900 py-6 mt-8">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center text-gray-400 text-sm">
-                <p>&copy; 2024 HoopyStreams. All rights reserved.</p>
-                <p class="mt-2">Disclaimer: This site does not host any video content.</p>
+                </p>
             </div>
-        </div>
-    </footer>
+        </section>
 
-    <script>
-        function saveGame(gameId) {
-            localStorage.setItem('game', gameId.toLowerCase());
-        }
+        <!-- Footer -->
+        <footer class="bg-neutral-900 py-6 mt-8">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center text-gray-400 text-sm">
+                    <p>&copy; 2024 HoopyStreams. All rights reserved.</p>
+                    <p class="mt-2">Disclaimer: This site does not host any video content.</p>
+                </div>
+            </div>
+        </footer>
 
-        function toggleMobileMenu() {
-            const mobileMenu = document.getElementById('mobile-menu');
-            mobileMenu.classList.toggle('hidden');
-        }
-    </script>
-    
+        <script>
+            function saveGame(gameId) {
+                localStorage.setItem('game', gameId.toLowerCase());
+            }
+
+            function toggleMobileMenu() {
+                const mobileMenu = document.getElementById('mobile-menu');
+                mobileMenu.classList.toggle('hidden');
+            }
+
+            const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRHoE2LgwT8uX0ULaD9L_aBvS9RAQgEXQWDQaSFL2U9rfWiabIu3fJERHUF80OUC4vkzPAZnp7Laro5/pub?gid=0&single=true&output=csv";
+
+            fetch(sheetURL)
+                .then(response => response.text())
+                .then(data => {
+                    const rows = data.trim().split("\n").slice(1); // skip first row if it's your emoji/title
+                    const scheduleContainer = document.getElementById("schedule-container");
+
+                    rows.forEach(row => {
+                        const [time, matchup, link] = row.split(",");
+
+                        const div = document.createElement("div");
+                        div.className = "bg-neutral-950 rounded p-4 hover:bg-neutral-900 transition duration-300";
+
+                        div.innerHTML = `
+                            <div class="grid grid-cols-12 gap-4 items-center">
+                                <div class="col-span-2 text-gray-400">${time}</div>
+                                <div class="col-span-6">${matchup}</div>
+                                <div class="col-span-4 text-right">
+                                    <a href="${link}" class="bg-red-600 text-white px-4 py-1 rounded hover:bg-red-700 inline-block">Watch</a>
+                                </div>
+                            </div>
+                        `;
+                        scheduleContainer.appendChild(div);
+                    });
+                })
+                .catch(err => console.error("Failed to fetch schedule:", err));
+        </script>
+        
+    </main>
 </body>
 </html>
