@@ -118,10 +118,16 @@ Join the growing community of NBA and NCAA enthusiasts who rely on HoopyStreams 
                     container.innerHTML = "";
 
                     rows.forEach(row => {
-                        const [time, matchup, gameId] = row.split(",").map(cell => cell.trim());
+                        // Use regex to properly parse CSV, handling commas within quotes
+                        const matches = row.match(/(?:^|,)("(?:[^"]*(?:""[^"]*)*)"|[^,]*)/g);
+                        if (!matches || matches.length < 3) return;
+                        
+                        const time = matches[0].replace(/^,|"|"/g, '').trim();
+                        const matchup = matches[1].replace(/^,|"|"/g, '').trim();
+                        const streamLink = matches[2].replace(/^,|"|"/g, '').trim();
 
                         // Skip rows with missing data
-                        if (!time || !matchup || !gameId) return;
+                        if (!time || !matchup || !streamLink) return;
 
                         const card = document.createElement("div");
                         card.className = "bg-neutral-950 rounded p-4 hover:bg-neutral-900 transition duration-300";
@@ -131,7 +137,7 @@ Join the growing community of NBA and NCAA enthusiasts who rely on HoopyStreams 
                                 <div class="col-span-2 text-gray-400">${time}</div>
                                 <div class="col-span-6 font-semibold text-white">${matchup}</div>
                                 <div class="col-span-4 text-right">
-                                    <a href="/live.html?game=${gameId}" class="bg-red-600 text-white px-4 py-1 rounded hover:bg-red-700 inline-block text-center">Watch</a>
+                                    <a href="${streamLink}" class="bg-red-600 text-white px-4 py-1 rounded hover:bg-red-700 inline-block text-center">Watch</a>
                                 </div>
                             </div>
                         `;
