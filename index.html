@@ -103,54 +103,43 @@ Join the growing community of NBA and NCAA enthusiasts who rely on HoopyStreams 
         </footer>
 
         <script>
-            function saveGame(gameId) {
-                localStorage.setItem('game', gameId.toLowerCase());
-            }
-
             function toggleMobileMenu() {
                 const mobileMenu = document.getElementById('mobile-menu');
                 mobileMenu.classList.toggle('hidden');
             }
 
-            const scheduleUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRHoE2LgwT8uX0ULaD9L_aBvS9RAQgEXQWDQaSFL2U9rfWiabIu3fJERHUF80OUC4vkzPAZnp7Laro5/pub?gid=0&single=true&output=csv";
+            const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRHoE2LgwT8uX0ULaD9L_aBvS9RAQgEXQWDQaSFL2U9rfWiabIu3fJERHUF80OUC4vkzPAZnp7Laro5/pub?gid=0&single=true&output=csv";
 
-            fetch(scheduleUrl)
-                .then(response => response.text())
+            fetch(CSV_URL)
+                .then(res => res.text())
                 .then(data => {
-                    const lines = data.split('\n');
-                    const scheduleContainer = document.getElementById('schedule-container');
+                    const rows = data.trim().split("\n").slice(1); // skip header row
+                    const container = document.getElementById("schedule-container");
+                    container.innerHTML = "";
 
-                    // Skip header row
-                    lines.slice(1).forEach(row => {
-                        const [time, match, link] = row.split(',').map(item => item.trim());
-                        
-                        // Only create game block if we have all required data
-                        if (time && match && link && link.startsWith('http')) {
-                            const gameBlock = document.createElement('div');
-                            gameBlock.className = "bg-neutral-800 rounded-lg p-4 hover:bg-neutral-700 transition-all duration-300 shadow-lg";
-                            
-                            const gameId = match.toLowerCase().replace(/\s+/g, '-');
-                            
-                            gameBlock.innerHTML = `
-                                <div class="flex items-center justify-between">
-                                    <div class="text-gray-400 w-24">${time}</div>
-                                    <div class="flex-grow text-white font-medium px-4">${match}</div>
-                                    <a href="${link}" 
-                                       onclick="saveGame('${gameId}')"
-                                       class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded transition-colors duration-200 text-sm font-semibold">
-                                        Watch
-                                    </a>
+                    rows.forEach(row => {
+                        const [time, matchup, link] = row.split(",");
+
+                        // Skip rows missing key data
+                        if (!time || !matchup || !link) return;
+
+                        const card = document.createElement("div");
+                        card.className = "bg-neutral-950 rounded p-4 hover:bg-neutral-900 transition duration-300";
+
+                        card.innerHTML = `
+                            <div class="grid grid-cols-12 gap-4 items-center">
+                                <div class="col-span-2 text-gray-400">${time}</div>
+                                <div class="col-span-6 font-semibold text-white">${matchup}</div>
+                                <div class="col-span-4 text-right">
+                                    <a href="${link}" class="bg-red-600 text-white px-4 py-1 rounded hover:bg-red-700 inline-block">Watch</a>
                                 </div>
-                            `;
-                            scheduleContainer.appendChild(gameBlock);
-                        }
+                            </div>
+                        `;
+
+                        container.appendChild(card);
                     });
                 })
-                .catch(error => {
-                    console.error('Error fetching schedule:', error);
-                    const scheduleContainer = document.getElementById('schedule-container');
-                    scheduleContainer.innerHTML = '<p class="text-red-500 text-center">Error loading schedule. Please try again later.</p>';
-                });
+                .catch(error => console.error("Failed to fetch schedule:", error));
         </script>
         
     </main>
