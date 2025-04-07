@@ -52,7 +52,7 @@
                 
                 <!-- Schedule Content -->
                 <div class="w-[60%]">
-                    <div class="bg-neutral-900 rounded-lg p-6 h-fit">
+                    <div class="bg-neutral-900 rounded-lg p-6">
                         <div id="schedule-container" class="space-y-4">
                             <!-- Games will be injected here -->
                         </div>
@@ -120,26 +120,36 @@ Join the growing community of NBA and NCAA enthusiasts who rely on HoopyStreams 
                     const lines = data.split('\n');
                     const scheduleContainer = document.getElementById('schedule-container');
 
-                    lines.forEach(row => {
-                        const [time, match, link] = row.split(',');
-
-                        // Ignore if link is missing (e.g. header row or empty block)
-                        if (!link || !link.startsWith('http')) return;
-
-                        const gameBlock = document.createElement('div');
-                        gameBlock.className = "bg-neutral-950 rounded p-4 hover:bg-neutral-900 transition duration-300";
-
-                        gameBlock.innerHTML = `
-                            <div class="grid grid-cols-12 gap-4 items-center">
-                                <div class="col-span-2 text-gray-400">${time}</div>
-                                <div class="col-span-6 font-semibold">${match}</div>
-                                <div class="col-span-4 text-right">
-                                    <a href="${link}" class="bg-red-600 text-white px-4 py-1 rounded hover:bg-red-700 inline-block text-center">Watch</a>
+                    // Skip header row
+                    lines.slice(1).forEach(row => {
+                        const [time, match, link] = row.split(',').map(item => item.trim());
+                        
+                        // Only create game block if we have all required data
+                        if (time && match && link && link.startsWith('http')) {
+                            const gameBlock = document.createElement('div');
+                            gameBlock.className = "bg-neutral-800 rounded-lg p-4 hover:bg-neutral-700 transition-all duration-300 shadow-lg";
+                            
+                            const gameId = match.toLowerCase().replace(/\s+/g, '-');
+                            
+                            gameBlock.innerHTML = `
+                                <div class="flex items-center justify-between">
+                                    <div class="text-gray-400 w-24">${time}</div>
+                                    <div class="flex-grow text-white font-medium px-4">${match}</div>
+                                    <a href="${link}" 
+                                       onclick="saveGame('${gameId}')"
+                                       class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded transition-colors duration-200 text-sm font-semibold">
+                                        Watch
+                                    </a>
                                 </div>
-                            </div>
-                        `;
-                        scheduleContainer.appendChild(gameBlock);
+                            `;
+                            scheduleContainer.appendChild(gameBlock);
+                        }
                     });
+                })
+                .catch(error => {
+                    console.error('Error fetching schedule:', error);
+                    const scheduleContainer = document.getElementById('schedule-container');
+                    scheduleContainer.innerHTML = '<p class="text-red-500 text-center">Error loading schedule. Please try again later.</p>';
                 });
         </script>
         
