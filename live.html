@@ -40,38 +40,61 @@
     <main class="pt-20 px-4 max-w-7xl mx-auto">
         <div class="text-center mb-8">
             <h1 class="text-3xl font-bold">Live Stream</h1>
-            <p class="text-gray-400 text-sm mt-2">Loading your game...</p>
+            <p class="text-gray-400 text-sm mt-2">Select your preferred server below</p>
         </div>
 
-        <div id="stream-container" class="w-full flex justify-center">
-            <!-- Stream will be injected here -->
+        <div id="stream-container" class="w-full flex flex-col items-center">
+            <div id="server-buttons" class="flex gap-4 mb-6">
+                <!-- Server buttons will be injected here -->
+            </div>
+            <div id="player-container" class="w-full flex justify-center">
+                <!-- Stream will be injected here -->
+            </div>
         </div>
     </main>
 
     <script>
-        // Get game ID from URL
         const params = new URLSearchParams(window.location.search);
         const gameId = params.get('game');
 
-        // Map of game IDs to stream URLs
         const streamMap = {
-            flahou: "https://www.youtube.com/embed/xNgZZ4rTWlE?si=l3l1nM_xYBt5XnvZ",
-            // Add more streams as needed
+            flahou: [
+                "https://www.youtube.com/embed/xNgZZ4rTWlE?si=l3l1nM_xYBt5XnvZ",
+                "https://www.youtube.com/embed/2nC9z57MuaI?si=TNYBM6nTRaZS3Dao", 
+                "https://www.youtube.com/embed/tQN9hdPNVS4?si=KUersG-tQXswb_cb"
+            ]
         };
 
         const container = document.getElementById('stream-container');
+        const buttonsContainer = document.getElementById('server-buttons');
+        const playerContainer = document.getElementById('player-container');
 
-        // Check if stream exists for game ID
-        if (streamMap[gameId]) {
-            // Create and configure iframe
+        function createIframe(src) {
             const iframe = document.createElement('iframe');
-            iframe.src = streamMap[gameId];
+            iframe.src = src;
             iframe.className = 'w-full max-w-[90%] aspect-video rounded-xl border border-neutral-700 shadow-lg';
             iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
             iframe.allowFullscreen = true;
-            container.appendChild(iframe);
+            return iframe;
+        }
+
+        if (streamMap[gameId]) {
+            // Create server buttons
+            streamMap[gameId].forEach((stream, index) => {
+                const button = document.createElement('button');
+                button.textContent = `Server ${index + 1}`;
+                button.className = 'px-6 py-2 rounded-lg bg-neutral-800 hover:bg-red-600 transition duration-300';
+                button.onclick = () => {
+                    playerContainer.innerHTML = '';
+                    playerContainer.appendChild(createIframe(stream));
+                };
+                buttonsContainer.appendChild(button);
+            });
+
+            // Load first stream by default
+            playerContainer.appendChild(createIframe(streamMap[gameId][0]));
         } else {
-            // Show error message if no stream found
+            // Show error message
             container.innerHTML = `
                 <div class="bg-neutral-900 rounded-xl p-8 text-center max-w-[90%] w-full border border-neutral-700">
                     <i class="fas fa-exclamation-circle text-4xl text-red-600 mb-4"></i>
