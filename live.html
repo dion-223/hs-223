@@ -69,6 +69,8 @@
         const buttonsContainer = document.getElementById('server-buttons');
         const playerContainer = document.getElementById('player-container');
 
+        let currentStreamIndex = 0;
+
         function createIframe(src) {
             const iframe = document.createElement('iframe');
             iframe.src = src;
@@ -85,11 +87,23 @@
                 button.textContent = `Server ${index + 1}`;
                 button.className = 'px-6 py-2 rounded-lg bg-neutral-800 hover:bg-red-600 transition duration-300';
                 button.onclick = () => {
+                    currentStreamIndex = index;
                     playerContainer.innerHTML = '';
                     playerContainer.appendChild(createIframe(stream));
                 };
                 buttonsContainer.appendChild(button);
             });
+
+            // Create refresh button
+            const refreshButton = document.createElement('button');
+            refreshButton.textContent = '🔁 Refresh';
+            refreshButton.className = 'px-6 py-2 rounded-lg bg-neutral-800 hover:bg-red-600 transition duration-300';
+            refreshButton.onclick = () => {
+                const currentStream = streamMap[gameId][currentStreamIndex];
+                playerContainer.innerHTML = '';
+                playerContainer.appendChild(createIframe(currentStream));
+            };
+            buttonsContainer.appendChild(refreshButton);
 
             // Load first stream by default
             playerContainer.appendChild(createIframe(streamMap[gameId][0]));
