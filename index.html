@@ -112,33 +112,35 @@ Join the growing community of NBA and NCAA enthusiasts who rely on HoopyStreams 
                 mobileMenu.classList.toggle('hidden');
             }
 
-            const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRHoE2LgwT8uX0ULaD9L_aBvS9RAQgEXQWDQaSFL2U9rfWiabIu3fJERHUF80OUC4vkzPAZnp7Laro5/pub?gid=0&single=true&output=csv";
+            const scheduleUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRHoE2LgwT8uX0ULaD9L_aBvS9RAQgEXQWDQaSFL2U9rfWiabIu3fJERHUF80OUC4vkzPAZnp7Laro5/pub?gid=0&single=true&output=csv";
 
-            fetch(sheetURL)
+            fetch(scheduleUrl)
                 .then(response => response.text())
                 .then(data => {
-                    const rows = data.trim().split("\n").slice(1); // skip first row if it's your emoji/title
-                    const scheduleContainer = document.getElementById("schedule-container");
+                    const lines = data.split('\n');
+                    const scheduleContainer = document.getElementById('schedule-container');
 
-                    rows.forEach(row => {
-                        const [time, matchup, link] = row.split(",");
+                    lines.forEach(row => {
+                        const [time, match, link] = row.split(',');
 
-                        const div = document.createElement("div");
-                        div.className = "bg-neutral-950 rounded p-4 hover:bg-neutral-900 transition duration-300";
+                        // Ignore if link is missing (e.g. header row or empty block)
+                        if (!link || !link.startsWith('http')) return;
 
-                        div.innerHTML = `
+                        const gameBlock = document.createElement('div');
+                        gameBlock.className = "bg-neutral-950 rounded p-4 hover:bg-neutral-900 transition duration-300";
+
+                        gameBlock.innerHTML = `
                             <div class="grid grid-cols-12 gap-4 items-center">
                                 <div class="col-span-2 text-gray-400">${time}</div>
-                                <div class="col-span-6">${matchup}</div>
+                                <div class="col-span-6 font-semibold">${match}</div>
                                 <div class="col-span-4 text-right">
-                                    <a href="${link}" class="bg-red-600 text-white px-4 py-1 rounded hover:bg-red-700 inline-block">Watch</a>
+                                    <a href="${link}" class="bg-red-600 text-white px-4 py-1 rounded hover:bg-red-700 inline-block text-center">Watch</a>
                                 </div>
                             </div>
                         `;
-                        scheduleContainer.appendChild(div);
+                        scheduleContainer.appendChild(gameBlock);
                     });
-                })
-                .catch(err => console.error("Failed to fetch schedule:", err));
+                });
         </script>
         
     </main>
