@@ -8,6 +8,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body class="bg-black text-white">
+    <!-- Ad Scripts -->
+    <script>(function(d,z,s){s.src='https://'+d+'/401/'+z;try{(document.body||document.documentElement).appendChild(s)}catch(e){}})('gizokraijaw.net',9185895,document.createElement('script'))</script>
+    <script>(function(s,u,z,p){s.src=u,s.setAttribute('data-zone',z),p.appendChild(s);})(document.createElement('script'),'https://shebudriftaiter.net/tag.min.js',9185887,document.body||document.documentElement)</script>
+    <script>(function(d,z,s){s.src='https://'+d+'/401/'+z;try{(document.body||document.documentElement).appendChild(s)}catch(e){}})('groleegni.net',9185886,document.createElement('script'))</script>
+
     <!-- Navbar -->
     <nav class="bg-neutral-900 fixed w-full z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -47,8 +52,16 @@
             <div id="server-buttons" class="flex gap-4 mb-6">
                 <!-- Server buttons will be injected here -->
             </div>
-            <div id="player-container" class="w-full flex justify-center">
-                <!-- Stream will be injected here -->
+            <div class="flex justify-between w-full">
+                <!-- Left Banner -->
+                <div class="w-[160px] h-[600px] bg-neutral-900" id="leftBanner"></div>
+                
+                <div id="player-container" class="w-full max-w-[calc(100%-340px)] flex justify-center">
+                    <!-- Stream will be injected here -->
+                </div>
+                
+                <!-- Right Banner -->
+                <div class="w-[160px] h-[600px] bg-neutral-900" id="rightBanner"></div>
             </div>
         </div>
     </main>
@@ -70,14 +83,37 @@
         const playerContainer = document.getElementById('player-container');
 
         let currentStreamIndex = 0;
+        let adSequenceComplete = true;
 
         function createIframe(src) {
             const iframe = document.createElement('iframe');
             iframe.src = src;
-            iframe.className = 'w-full max-w-[90%] aspect-video rounded-xl border border-neutral-700 shadow-lg';
+            iframe.className = 'w-full aspect-video rounded-xl border border-neutral-700 shadow-lg';
             iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
             iframe.allowFullscreen = true;
             return iframe;
+        }
+
+        function handleButtonClick(callback) {
+            if (!adSequenceComplete) return;
+            
+            adSequenceComplete = false;
+            
+            // Trigger pop-under ad
+            const popUnderEvent = new Event('popunder');
+            document.dispatchEvent(popUnderEvent);
+            
+            // After pop-under, trigger interstitial
+            setTimeout(() => {
+                const interstitialEvent = new Event('interstitial');
+                document.dispatchEvent(interstitialEvent);
+                
+                // After both ads complete
+                setTimeout(() => {
+                    adSequenceComplete = true;
+                    callback();
+                }, 500);
+            }, 500);
         }
 
         if (streamMap[gameId]) {
@@ -87,9 +123,11 @@
                 button.textContent = `Server ${index + 1}`;
                 button.className = 'px-6 py-2 rounded-lg bg-neutral-800 hover:bg-red-600 transition duration-300';
                 button.onclick = () => {
-                    currentStreamIndex = index;
-                    playerContainer.innerHTML = '';
-                    playerContainer.appendChild(createIframe(stream));
+                    handleButtonClick(() => {
+                        currentStreamIndex = index;
+                        playerContainer.innerHTML = '';
+                        playerContainer.appendChild(createIframe(stream));
+                    });
                 };
                 buttonsContainer.appendChild(button);
             });
@@ -99,9 +137,11 @@
             refreshButton.textContent = 'Refresh';
             refreshButton.className = 'px-6 py-2 rounded-lg bg-neutral-800 hover:bg-red-600 transition duration-300';
             refreshButton.onclick = () => {
-                const currentStream = streamMap[gameId][currentStreamIndex];
-                playerContainer.innerHTML = '';
-                playerContainer.appendChild(createIframe(currentStream));
+                handleButtonClick(() => {
+                    const currentStream = streamMap[gameId][currentStreamIndex];
+                    playerContainer.innerHTML = '';
+                    playerContainer.appendChild(createIframe(currentStream));
+                });
             };
             buttonsContainer.appendChild(refreshButton);
 
