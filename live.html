@@ -45,83 +45,56 @@
 
         <div id="stream-container" class="w-full flex flex-col items-center">
             <div id="server-buttons" class="flex flex-wrap justify-center gap-4 mb-6">
-                <!-- Server buttons will be injected here -->
+                <button id="server1" class="px-6 py-2 rounded-lg bg-neutral-800 hover:bg-red-600 transition duration-300">Server 1</button>
+                <button id="server2" class="px-6 py-2 rounded-lg bg-neutral-800 hover:bg-red-600 transition duration-300">Server 2</button>
+                <button id="server3" class="px-6 py-2 rounded-lg bg-neutral-800 hover:bg-red-600 transition duration-300">Server 3</button>
             </div>
             <div class="flex flex-col md:flex-row justify-between w-full">
                 <div id="player-container" class="w-full flex justify-center">
-                    <!-- Stream will be injected here -->
+                    <iframe id="stream-frame" class="w-full aspect-video rounded-xl border border-neutral-700 shadow-lg" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                 </div>
             </div>
         </div>
     </main>
 
     <script>
-        const params = new URLSearchParams(window.location.search);
-        const gameId = params.get('game');
+        const urlParams = new URLSearchParams(window.location.search);
+        const gameId = urlParams.get("game");
 
-        const streamMap = {
-            flahou: [
-                "https://hd.redditf.xyz/live/embed.php?ch=ch14",
-                "https://hd.redditf.xyz/live/embed.php?ch=ch14", 
-                "https://hd.redditf.xyz/live/embed.php?ch=ch14"
-            ]
-        };
+        fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vR8F07x4RufUWoiIc5_LwyFZZqaDhiJLuAV9S-a4b8gDVJxEPUDRyCmpH5WuWs15QNu36kpGbjF-oFP/pub?output=csv")
+            .then(res => res.text())
+            .then(data => {
+                const rows = data.trim().split("\n").slice(1);
+                let found = false;
 
-        const container = document.getElementById('stream-container');
-        const buttonsContainer = document.getElementById('server-buttons');
-        const playerContainer = document.getElementById('player-container');
+                rows.forEach(row => {
+                    const [id, embed1, embed2, embed3] = row.split(",");
+                    if (id.trim().toLowerCase() === gameId.trim().toLowerCase()) {
+                        found = true;
 
-        let currentStreamIndex = 0;
+                        const frame = document.getElementById("stream-frame");
+                        frame.src = embed1;
 
-        function createIframe(src) {
-            const iframe = document.createElement('iframe');
-            iframe.src = src;
-            iframe.className = 'w-full aspect-video rounded-xl border border-neutral-700 shadow-lg';
-            iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
-            iframe.allowFullscreen = true;
-            return iframe;
-        }
+                        document.getElementById("server1").addEventListener("click", () => {
+                            frame.src = embed1;
+                        });
+                        document.getElementById("server2").addEventListener("click", () => {
+                            frame.src = embed2;
+                        });
+                        document.getElementById("server3").addEventListener("click", () => {
+                            frame.src = embed3;
+                        });
+                    }
+                });
 
-        if (streamMap[gameId]) {
-            // Create server buttons
-            streamMap[gameId].forEach((stream, index) => {
-                const button = document.createElement('button');
-                button.textContent = `Server ${index + 1}`;
-                button.className = 'px-6 py-2 rounded-lg bg-neutral-800 hover:bg-red-600 transition duration-300';
-                button.onclick = () => {
-                    currentStreamIndex = index;
-                    playerContainer.innerHTML = '';
-                    playerContainer.appendChild(createIframe(stream));
-                };
-                buttonsContainer.appendChild(button);
+                if (!found) {
+                    document.getElementById("stream-frame").src = "";
+                    document.getElementById("stream-container").innerText = "Stream not found.";
+                }
+            })
+            .catch(err => {
+                console.error("Failed to load embed sheet:", err);
             });
-
-            // Create refresh button
-            const refreshButton = document.createElement('button');
-            refreshButton.textContent = 'Refresh';
-            refreshButton.className = 'px-6 py-2 rounded-lg bg-neutral-800 hover:bg-red-600 transition duration-300';
-            refreshButton.onclick = () => {
-                const currentStream = streamMap[gameId][currentStreamIndex];
-                playerContainer.innerHTML = '';
-                playerContainer.appendChild(createIframe(currentStream));
-            };
-            buttonsContainer.appendChild(refreshButton);
-
-            // Load first stream by default
-            playerContainer.appendChild(createIframe(streamMap[gameId][0]));
-        } else {
-            // Show error message
-            container.innerHTML = `
-                <div class="bg-neutral-900 rounded-xl p-8 text-center max-w-[90%] w-full border border-neutral-700">
-                    <i class="fas fa-exclamation-circle text-4xl text-red-600 mb-4"></i>
-                    <h2 class="text-xl font-semibold mb-2">No Stream Found</h2>
-                    <p class="text-gray-400">We couldn't find a stream for this game.</p>
-                    <a href="/" class="inline-block mt-4 bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg transition duration-300">
-                        Return Home
-                    </a>
-                </div>
-            `;
-        }
     </script>
 </body>
 </html>
