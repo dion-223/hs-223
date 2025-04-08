@@ -49,19 +49,19 @@
         </div>
 
         <div id="stream-container" class="w-full flex flex-col items-center">
-            <div id="server-buttons" class="flex gap-4 mb-6">
+            <div id="server-buttons" class="flex flex-wrap justify-center gap-4 mb-6">
                 <!-- Server buttons will be injected here -->
             </div>
-            <div class="flex justify-between w-full">
+            <div class="flex flex-col md:flex-row justify-between w-full">
                 <!-- Left Banner -->
-                <div class="w-[160px] h-[600px] bg-neutral-900" id="leftBanner"></div>
+                <div class="hidden md:block w-[120px] lg:w-[160px] h-[600px] bg-neutral-900" id="leftBanner"></div>
                 
-                <div id="player-container" class="w-full max-w-[calc(100%-340px)] flex justify-center">
+                <div id="player-container" class="w-full md:max-w-[calc(100%-260px)] lg:max-w-[calc(100%-340px)] flex justify-center">
                     <!-- Stream will be injected here -->
                 </div>
                 
                 <!-- Right Banner -->
-                <div class="w-[160px] h-[600px] bg-neutral-900" id="rightBanner"></div>
+                <div class="hidden md:block w-[120px] lg:w-[160px] h-[600px] bg-neutral-900" id="rightBanner"></div>
             </div>
         </div>
     </main>
