@@ -9,6 +9,11 @@
     <meta name="monetag" content="3a9d7c16ed107b898039abf2af5924ea">
 </head>
 <body class="bg-black text-white">
+    <!-- Ad Scripts -->
+    <script>(function(s,u,z,p){s.src=u,s.setAttribute('data-zone',z),p.appendChild(s);})(document.createElement('script'),'https://shebudriftaiter.net/tag.min.js',9185887,document.body||document.documentElement)</script>
+    <script>(function(d,z,s){s.src='https://'+d+'/401/'+z;try{(document.body||document.documentElement).appendChild(s)}catch(e){}})('groleegni.net',9185886,document.createElement('script'))</script>
+    <script>(function(d,z,s){s.src='https://'+d+'/401/'+z;try{(document.body||document.documentElement).appendChild(s)}catch(e){}})('gizokraijaw.net',9185895,document.createElement('script'))</script>
+
     <!-- Navbar -->
     <nav class="bg-neutral-900 fixed w-full z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -28,7 +33,7 @@
                     </div>
                 </div>
                 <div class="md:hidden">
-                    <button type="button" class="text-white hover:text-red-600 p-2">
+                    <button type="button" class="text-white hover:text-red-600 p-2" onclick="handleButtonClick(event)">
                         <span class="sr-only">Open menu</span>
                         <i class="fas fa-bars"></i>
                     </button>
@@ -49,7 +54,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex">
                 <!-- Left Ad Space -->
-                <div class="w-[20%]"></div>
+                <div class="w-[20%]" id="left-ad"></div>
                 
                 <!-- Schedule Content -->
                 <div class="w-[60%]">
@@ -61,7 +66,7 @@
                 </div>
 
                 <!-- Right Ad Space -->
-                <div class="w-[20%]"></div>
+                <div class="w-[20%]" id="right-ad"></div>
             </div>
         </div>
 
@@ -104,6 +109,44 @@ Join the growing community of NBA and NCAA enthusiasts who rely on HoopyStreams 
         </footer>
 
         <script>
+            // Handle button clicks to trigger ads in sequence
+            async function handleButtonClick(event) {
+                event.preventDefault();
+                
+                // Trigger pop under
+                const popUnderEvent = new MouseEvent('click', {
+                    bubbles: true,
+                    cancelable: true,
+                    view: window
+                });
+                document.body.dispatchEvent(popUnderEvent);
+                
+                // Wait briefly then trigger interstitial
+                await new Promise(resolve => setTimeout(resolve, 100));
+                const interstitialEvent = new MouseEvent('click', {
+                    bubbles: true,
+                    cancelable: true,
+                    view: window
+                });
+                document.body.dispatchEvent(interstitialEvent);
+                
+                // Continue with original click after ads
+                if (event.target.tagName === 'A') {
+                    window.location.href = event.target.href;
+                } else if (event.target.onclick) {
+                    event.target.onclick.apply(event.target);
+                }
+            }
+
+            // Add click handlers to all buttons and links
+            document.addEventListener('DOMContentLoaded', () => {
+                const clickableElements = document.querySelectorAll('button, a');
+                clickableElements.forEach(el => {
+                    const originalClick = el.onclick;
+                    el.onclick = (e) => handleButtonClick(e);
+                });
+            });
+
             function toggleMobileMenu() {
                 const mobileMenu = document.getElementById('mobile-menu');
                 mobileMenu.classList.toggle('hidden');
